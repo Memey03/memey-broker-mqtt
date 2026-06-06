@@ -34,7 +34,7 @@ export default function App() {
   const [voiceStatus, setVoiceStatus]   = useState('Siap');
   const [sensorPulse, setSensorPulse]   = useState(false);
 
-  const logsEndRef   = useRef(null);
+  const logsEndRef   = useRef(null); 
   const recognitionRef = useRef(null);
 
   // Gunakan ref untuk sensor agar processCommand selalu baca nilai terbaru
@@ -153,7 +153,7 @@ export default function App() {
       speak('Pola dua diaktifkan');
       return;
     }
-    if (/stop|henti|berhenti/.test(norm)) {
+if (/\bstop\b|hentikan pola|matikan pola|stop pola|berhenti/.test(norm)) {
       publishAll('STOP');
       speak('Pola dihentikan');
       return;
@@ -308,9 +308,12 @@ export default function App() {
     };
   }, [addLog]);
 
-  // Auto-scroll log
+// Auto-scroll log — hanya scroll di dalam panel log, bukan halaman
+  const logContainerRef = useRef(null);
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   // ─── UI helpers ───────────────────────────────────────────
@@ -449,7 +452,7 @@ export default function App() {
               </span>
               <span className="text-[10px] bg-slate-400 text-white px-2 py-0.5 rounded-full animate-pulse">LIVE</span>
             </div>
-            <div className="p-3 flex flex-col gap-1.5 font-mono text-[11px] text-slate-600 overflow-y-auto flex-1">
+            <div ref={logContainerRef} className="p-3 flex flex-col gap-1.5 font-mono text-[11px] text-slate-600 overflow-y-auto flex-1">
               {logs.length === 0
                 ? <p className="text-slate-400 text-center mt-6">Belum ada aktivitas</p>
                 : logs.map((log, i) => {
@@ -467,7 +470,6 @@ export default function App() {
                     );
                   })
               }
-              <div ref={logsEndRef} />
             </div>
           </div>
 
